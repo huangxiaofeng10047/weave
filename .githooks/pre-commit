@@ -3,8 +3,8 @@
 set -x
 set -e
 
-make
+#make
 
-if [ $? -ne 0 ]; then
-    echo "run `make` failed, skip commit"
-fi
+#if [ $? -ne 0 ]; then
+#    echo "run `make` failed, skip commit"
+#fi
