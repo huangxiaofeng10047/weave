@@ -54,7 +54,7 @@ exec-db:
 	docker exec -it mypostgres psql -d weave -U postgres
 
 redis:
-	@docker start myredis || docker run --name myredis -d -p 6379:6379 redis --appendonly yes --requirepass 123456
+	@docker start myredis || docker run --name myredis -d -p 16379:6379 redis --appendonly yes --requirepass 123456
 
 ui:
 	cd web && npm i && npm run dev
