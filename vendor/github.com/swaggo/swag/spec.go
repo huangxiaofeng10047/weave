@@ -21,33 +21,31 @@ type Spec struct {
 
 // ReadDoc parses SwaggerTemplate into swagger document.
 func (i *Spec) ReadDoc() string {
-	i.Description = strings.ReplaceAll(i.Description, "\n", "\\n")
+	i.Description = strings.Replace(i.Description, "\n", "\\n", -1)
 
-	tpl, err := template.New("swagger_info").Funcs(template.FuncMap{
+	t, err := template.New("swagger_info").Funcs(template.FuncMap{
 		"marshal": func(v interface{}) string {
 			a, _ := json.Marshal(v)
-
 			return string(a)
 		},
 		"escape": func(v interface{}) string {
 			// escape tabs
-			var str = strings.ReplaceAll(v.(string), "\t", "\\t")
+			str := strings.Replace(v.(string), "\t", "\\t", -1)
 			// replace " with \", and if that results in \\", replace that with \\\"
-			str = strings.ReplaceAll(str, "\"", "\\\"")
-
-			return strings.ReplaceAll(str, "\\\\\"", "\\\\\\\"")
+			str = strings.Replace(str, "\"", "\\\"", -1)
+			return strings.Replace(str, "\\\\\"", "\\\\\\\"", -1)
 		},
 	}).Parse(i.SwaggerTemplate)
 	if err != nil {
 		return i.SwaggerTemplate
 	}
 
-	var doc bytes.Buffer
-	if err = tpl.Execute(&doc, i); err != nil {
+	var tpl bytes.Buffer
+	if err = t.Execute(&tpl, i); err != nil {
 		return i.SwaggerTemplate
 	}
 
-	return doc.String()
+	return tpl.String()
 }
 
 // InstanceName returns Spec instance name.

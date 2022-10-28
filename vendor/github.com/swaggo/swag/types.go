@@ -22,8 +22,7 @@ type TypeSpecDef struct {
 	TypeSpec *ast.TypeSpec
 
 	// path of package starting from under ${GOPATH}/src or from module path in go.mod
-	PkgPath    string
-	ParentSpec ast.Decl
+	PkgPath string
 }
 
 // Name the name of the typeSpec.
@@ -37,13 +36,7 @@ func (t *TypeSpecDef) Name() string {
 
 // FullName full name of the typeSpec.
 func (t *TypeSpecDef) FullName() string {
-	var fullName string
-	if parentFun, ok := (t.ParentSpec).(*ast.FuncDecl); ok && parentFun != nil {
-		fullName = fullTypeNameFunctionScoped(t.File.Name.Name, parentFun.Name.Name, t.TypeSpec.Name.Name)
-	} else {
-		fullName = fullTypeName(t.File.Name.Name, t.TypeSpec.Name.Name)
-	}
-	return fullName
+	return fullTypeName(t.File.Name.Name, t.TypeSpec.Name.Name)
 }
 
 // FullPath of the typeSpec.

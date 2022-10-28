@@ -30,7 +30,7 @@ The fantastic ORM library for Golang, aims to be developer friendly.
 ## Getting Started
 
 * GORM Guides [https://gorm.io](https://gorm.io)
-* Gen Guides [https://gorm.io/gen/index.html](https://gorm.io/gen/index.html)
+* GORM Gen    [gorm/gen](https://github.com/go-gorm/gen#gormgen)
 
 ## Contributing
 

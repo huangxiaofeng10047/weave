@@ -90,8 +90,7 @@ func (src *Hstore) AssignTo(dst interface{}) error {
 				case Null:
 					(*v)[k] = nil
 				case Present:
-					str := val.String
-					(*v)[k] = &str
+					(*v)[k] = &val.String
 				default:
 					return fmt.Errorf("cannot decode %#v into %T", src, dst)
 				}
@@ -414,7 +413,7 @@ func parseHstore(s string) (k []string, v []Text, err error) {
 				r, end = p.Consume()
 				switch {
 				case end:
-					err = errors.New("Found EOS after ',', expecting space")
+					err = errors.New("Found EOS after ',', expcting space")
 				case (unicode.IsSpace(r)):
 					r, end = p.Consume()
 					state = hsKey

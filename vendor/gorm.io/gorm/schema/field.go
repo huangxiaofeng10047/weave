@@ -403,14 +403,18 @@ func (schema *Schema) ParseField(fieldStruct reflect.StructField) *Field {
 				}
 
 				if ef.PrimaryKey {
-					if !utils.CheckTruth(ef.TagSettings["PRIMARYKEY"], ef.TagSettings["PRIMARY_KEY"]) {
+					if val, ok := ef.TagSettings["PRIMARYKEY"]; ok && utils.CheckTruth(val) {
+						ef.PrimaryKey = true
+					} else if val, ok := ef.TagSettings["PRIMARY_KEY"]; ok && utils.CheckTruth(val) {
+						ef.PrimaryKey = true
+					} else {
 						ef.PrimaryKey = false
 
 						if val, ok := ef.TagSettings["AUTOINCREMENT"]; !ok || !utils.CheckTruth(val) {
 							ef.AutoIncrement = false
 						}
 
-						if !ef.AutoIncrement && ef.DefaultValue == "" {
+						if ef.DefaultValue == "" {
 							ef.HasDefaultValue = false
 						}
 					}
@@ -468,6 +472,9 @@ func (field *Field) setupValuerAndSetter() {
 		oldValuerOf := field.ValueOf
 		field.ValueOf = func(ctx context.Context, v reflect.Value) (interface{}, bool) {
 			value, zero := oldValuerOf(ctx, v)
+			if zero {
+				return value, zero
+			}
 
 			s, ok := value.(SerializerValuerInterface)
 			if !ok {
@@ -480,7 +487,7 @@ func (field *Field) setupValuerAndSetter() {
 				Destination:     v,
 				Context:         ctx,
 				fieldValue:      value,
-			}, zero
+			}, false
 		}
 	}
 

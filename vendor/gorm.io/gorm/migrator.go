@@ -68,7 +68,6 @@ type Migrator interface {
 	// Database
 	CurrentDatabase() string
 	FullDataTypeOf(*schema.Field) clause.Expr
-	GetTypeAliases(databaseTypeName string) []string
 
 	// Tables
 	CreateTable(dst ...interface{}) error

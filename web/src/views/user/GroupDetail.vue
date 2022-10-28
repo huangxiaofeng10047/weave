@@ -28,9 +28,15 @@
         
         <el-dialog v-model="showCreate" top="5vh" title="Add User" width="50%">
           <el-form ref="createFormRef" :model="newUser" label-position="top" label-width="auto">
-            <el-form-item label="Name" prop="name" required>
+            <!-- <el-form-item label="Name" prop="name" required>
               <el-input v-model="newUser.name" />
               <span class="text-gray-400">The user name</span>
+            </el-form-item> -->
+            <el-form-item label="Users" prop="id" required>
+              <el-select class="w-full" v-model="newUser.id" filterable
+                  placeholder="please select subject">
+                  <el-option v-for="sub in subjects" :label="sub.name" :value="sub.id" v-bind:key="sub.id"/>
+              </el-select>
             </el-form-item>
             <el-form-item label="Role" prop="role" required>
               <el-select  class="w-full" v-model="newUser.role">
@@ -110,11 +116,14 @@ const tag = ref();
 const showCreate = ref(false);
 const showDelete = ref(-1);
 const newUser = ref({
-  name: '',
+  id: '',
   describe: '',
 });
 
 const createFormRef = ref();
+const newGroupBinding = ref({});
+const subjects = ref([]);
+const roleBindings = ref([]);
 
 onMounted(
   () => {
@@ -131,6 +140,17 @@ onMounted(
     })
     request.get(`/api/v1/groups/${id}/users`).then((response) => {
       users.value = response.data.data;
+    })
+    request.get(`/api/v1/users`).then((response) => {
+        subjects.value = Array.from(response.data.data);
+        for (let sub of Array.from(response.data.data)) {
+            for (let role of Array.from(sub.roles)) {
+                roleBindings.value.push({
+                    "subject": sub,
+                    "role": role,
+                })
+            }
+        }
     })
   }
 )

@@ -70,12 +70,10 @@ func Update(config *Config) func(db *gorm.DB) {
 		if db.Statement.SQL.Len() == 0 {
 			db.Statement.SQL.Grow(180)
 			db.Statement.AddClauseIfNotExists(clause.Update{})
-			if _, ok := db.Statement.Clauses["SET"]; !ok {
-				if set := ConvertToAssignments(db.Statement); len(set) != 0 {
-					db.Statement.AddClause(set)
-				} else {
-					return
-				}
+			if set := ConvertToAssignments(db.Statement); len(set) != 0 {
+				db.Statement.AddClause(set)
+			} else if _, ok := db.Statement.Clauses["SET"]; !ok {
+				return
 			}
 
 			db.Statement.Build(db.Statement.BuildClauses...)
@@ -160,21 +158,21 @@ func ConvertToAssignments(stmt *gorm.Statement) (set clause.Set) {
 		switch stmt.ReflectValue.Kind() {
 		case reflect.Slice, reflect.Array:
 			if size := stmt.ReflectValue.Len(); size > 0 {
-				var isZero bool
+				var primaryKeyExprs []clause.Expression
 				for i := 0; i < size; i++ {
-					for _, field := range stmt.Schema.PrimaryFields {
-						_, isZero = field.ValueOf(stmt.Context, stmt.ReflectValue.Index(i))
-						if !isZero {
-							break
-						}
+					exprs := make([]clause.Expression, len(stmt.Schema.PrimaryFields))
+					var notZero bool
+					for idx, field := range stmt.Schema.PrimaryFields {
+						value, isZero := field.ValueOf(stmt.Context, stmt.ReflectValue.Index(i))
+						exprs[idx] = clause.Eq{Column: field.DBName, Value: value}
+						notZero = notZero || !isZero
+					}
+					if notZero {
+						primaryKeyExprs = append(primaryKeyExprs, clause.And(exprs...))
 					}
 				}
 
-				if !isZero {
-					_, primaryValues := schema.GetIdentityFieldValuesMap(stmt.Context, stmt.ReflectValue, stmt.Schema.PrimaryFields)
-					column, values := schema.ToQueryValues("", stmt.Schema.PrimaryFieldDBNames, primaryValues)
-					stmt.AddClause(clause.Where{Exprs: []clause.Expression{clause.IN{Column: column, Values: values}}})
-				}
+				stmt.AddClause(clause.Where{Exprs: []clause.Expression{clause.And(clause.Or(primaryKeyExprs...))}})
 			}
 		case reflect.Struct:
 			for _, field := range stmt.Schema.PrimaryFields {

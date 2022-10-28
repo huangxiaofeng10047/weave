@@ -191,8 +191,7 @@ func (schema *Schema) buildMany2ManyRelation(relation *Relationship, field *Fiel
 		err             error
 		joinTableFields []reflect.StructField
 		fieldsMap       = map[string]*Field{}
-		ownFieldsMap    = map[string]*Field{} // fix self join many2many
-		referFieldsMap  = map[string]*Field{}
+		ownFieldsMap    = map[string]bool{} // fix self join many2many
 		joinForeignKeys = toColumns(field.TagSettings["JOINFOREIGNKEY"])
 		joinReferences  = toColumns(field.TagSettings["JOINREFERENCES"])
 	)
@@ -230,7 +229,7 @@ func (schema *Schema) buildMany2ManyRelation(relation *Relationship, field *Fiel
 			joinFieldName = strings.Title(joinForeignKeys[idx])
 		}
 
-		ownFieldsMap[joinFieldName] = ownField
+		ownFieldsMap[joinFieldName] = true
 		fieldsMap[joinFieldName] = ownField
 		joinTableFields = append(joinTableFields, reflect.StructField{
 			Name:    joinFieldName,
@@ -243,6 +242,9 @@ func (schema *Schema) buildMany2ManyRelation(relation *Relationship, field *Fiel
 
 	for idx, relField := range refForeignFields {
 		joinFieldName := strings.Title(relation.FieldSchema.Name) + relField.Name
+		if len(joinReferences) > idx {
+			joinFieldName = strings.Title(joinReferences[idx])
+		}
 
 		if _, ok := ownFieldsMap[joinFieldName]; ok {
 			if field.Name != relation.FieldSchema.Name {
@@ -252,22 +254,14 @@ func (schema *Schema) buildMany2ManyRelation(relation *Relationship, field *Fiel
 			}
 		}
 
-		if len(joinReferences) > idx {
-			joinFieldName = strings.Title(joinReferences[idx])
-		}
-
-		referFieldsMap[joinFieldName] = relField
-
-		if _, ok := fieldsMap[joinFieldName]; !ok {
-			fieldsMap[joinFieldName] = relField
-			joinTableFields = append(joinTableFields, reflect.StructField{
-				Name:    joinFieldName,
-				PkgPath: relField.StructField.PkgPath,
-				Type:    relField.StructField.Type,
-				Tag: removeSettingFromTag(appendSettingFromTag(relField.StructField.Tag, "primaryKey"),
-					"column", "autoincrement", "index", "unique", "uniqueindex"),
-			})
-		}
+		fieldsMap[joinFieldName] = relField
+		joinTableFields = append(joinTableFields, reflect.StructField{
+			Name:    joinFieldName,
+			PkgPath: relField.StructField.PkgPath,
+			Type:    relField.StructField.Type,
+			Tag: removeSettingFromTag(appendSettingFromTag(relField.StructField.Tag, "primaryKey"),
+				"column", "autoincrement", "index", "unique", "uniqueindex"),
+		})
 	}
 
 	joinTableFields = append(joinTableFields, reflect.StructField{
@@ -323,37 +317,31 @@ func (schema *Schema) buildMany2ManyRelation(relation *Relationship, field *Fiel
 				f.Size = fieldsMap[f.Name].Size
 			}
 			relation.JoinTable.PrimaryFields = append(relation.JoinTable.PrimaryFields, f)
+			ownPrimaryField := schema == fieldsMap[f.Name].Schema && ownFieldsMap[f.Name]
 
-			if of, ok := ownFieldsMap[f.Name]; ok {
+			if ownPrimaryField {
 				joinRel := relation.JoinTable.Relationships.Relations[relName]
 				joinRel.Field = relation.Field
 				joinRel.References = append(joinRel.References, &Reference{
-					PrimaryKey: of,
+					PrimaryKey: fieldsMap[f.Name],
 					ForeignKey: f,
 				})
-
-				relation.References = append(relation.References, &Reference{
-					PrimaryKey:    of,
-					ForeignKey:    f,
-					OwnPrimaryKey: true,
-				})
-			}
-
-			if rf, ok := referFieldsMap[f.Name]; ok {
+			} else {
 				joinRefRel := relation.JoinTable.Relationships.Relations[relRefName]
 				if joinRefRel.Field == nil {
 					joinRefRel.Field = relation.Field
 				}
 				joinRefRel.References = append(joinRefRel.References, &Reference{
-					PrimaryKey: rf,
-					ForeignKey: f,
-				})
-
-				relation.References = append(relation.References, &Reference{
-					PrimaryKey: rf,
+					PrimaryKey: fieldsMap[f.Name],
 					ForeignKey: f,
 				})
 			}
+
+			relation.References = append(relation.References, &Reference{
+				PrimaryKey:    fieldsMap[f.Name],
+				ForeignKey:    f,
+				OwnPrimaryKey: ownPrimaryField,
+			})
 		}
 	}
 }
@@ -403,30 +391,33 @@ func (schema *Schema) guessRelation(relation *Relationship, field *Field, cgl gu
 	case guessBelongs:
 		primarySchema, foreignSchema = relation.FieldSchema, schema
 	case guessEmbeddedBelongs:
-		if field.OwnerSchema == nil {
+		if field.OwnerSchema != nil {
+			primarySchema, foreignSchema = relation.FieldSchema, field.OwnerSchema
+		} else {
 			reguessOrErr()
 			return
 		}
-		primarySchema, foreignSchema = relation.FieldSchema, field.OwnerSchema
 	case guessHas:
 	case guessEmbeddedHas:
-		if field.OwnerSchema == nil {
+		if field.OwnerSchema != nil {
+			primarySchema, foreignSchema = field.OwnerSchema, relation.FieldSchema
+		} else {
 			reguessOrErr()
 			return
 		}
-		primarySchema, foreignSchema = field.OwnerSchema, relation.FieldSchema
 	}
 
 	if len(relation.foreignKeys) > 0 {
 		for _, foreignKey := range relation.foreignKeys {
-			f := foreignSchema.LookUpField(foreignKey)
-			if f == nil {
+			if f := foreignSchema.LookUpField(foreignKey); f != nil {
+				foreignFields = append(foreignFields, f)
+			} else {
 				reguessOrErr()
 				return
 			}
-			foreignFields = append(foreignFields, f)
 		}
 	} else {
+		var primaryFields []*Field
 		var primarySchemaName = primarySchema.Name
 		if primarySchemaName == "" {
 			primarySchemaName = relation.FieldSchema.Name
@@ -463,11 +454,10 @@ func (schema *Schema) guessRelation(relation *Relationship, field *Field, cgl gu
 		}
 	}
 
-	switch {
-	case len(foreignFields) == 0:
+	if len(foreignFields) == 0 {
 		reguessOrErr()
 		return
-	case len(relation.primaryKeys) > 0:
+	} else if len(relation.primaryKeys) > 0 {
 		for idx, primaryKey := range relation.primaryKeys {
 			if f := primarySchema.LookUpField(primaryKey); f != nil {
 				if len(primaryFields) < idx+1 {
@@ -481,7 +471,7 @@ func (schema *Schema) guessRelation(relation *Relationship, field *Field, cgl gu
 				return
 			}
 		}
-	case len(primaryFields) == 0:
+	} else if len(primaryFields) == 0 {
 		if len(foreignFields) == 1 && primarySchema.PrioritizedPrimaryField != nil {
 			primaryFields = append(primaryFields, primarySchema.PrioritizedPrimaryField)
 		} else if len(primarySchema.PrimaryFields) == len(foreignFields) {
