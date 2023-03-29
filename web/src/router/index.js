@@ -183,7 +183,7 @@ router.beforeEach((to, from, next) => {
   if (user && user.name) {
     isAuthenticated = true;
   }
-
+  console.log(isAuthenticated);
   if (!isAuthenticated && to.name !== 'Login' && to.name !== 'OAuth') next({ name: 'Login' })
   else if(isAuthenticated && (to.name == 'Login' || to.name == 'OAuth' )) next({ name: 'Index'})
   else next()

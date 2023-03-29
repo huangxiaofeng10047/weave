@@ -34,6 +34,7 @@ import (
 	"github.com/sirupsen/logrus"
 	swaggerfiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
+	"github.com/unrolled/secure"
 )
 
 func New(conf *config.Config, logger *logrus.Logger) (*Server, error) {
@@ -167,6 +168,11 @@ func (s *Server) Run() error {
 		Handler: s.engine,
 	}
 
+	s.engine.Use(TlsHandler()) // 处理SSL的中间件
+
+	go s.engine.RunTLS(":8443", "./certs/server.crt", "./certs/server.key")
+	// 上面一行三个参数分别是SSL的监听端口，证书以及私钥
+	s.engine.Run(":8080")
 	go func() {
 		if err := server.ListenAndServe(); err != http.ErrServerClosed {
 			s.logger.Fatalf("Failed to start server, %v", err)
@@ -184,7 +190,19 @@ func (s *Server) Run() error {
 
 	return server.Shutdown(ctx)
 }
-
+func TlsHandler() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		secureMiddleware := secure.New(secure.Options{
+			SSLRedirect: true,
+			SSLHost:     ":443",
+		})
+		err := secureMiddleware.Process(c.Writer, c.Request)
+		if err != nil {
+			return
+		}
+		c.Next()
+	}
+}
 func (s *Server) Close() {
 	if err := s.repository.Close(); err != nil {
 		s.logger.Warnf("failed to close repository, %v", err)

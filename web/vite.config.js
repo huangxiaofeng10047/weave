@@ -42,17 +42,18 @@ export default defineConfig({
   ],
   server: {
     // if your frontend not in the localhost, please uncomment the https config meanwhile
-    host: "127.0.0.1",
+    host: "0.0.0.0",
     port: 8081,
-    // https: {
-    //   ca: fs.readFileSync('../certs/root.crt'),
-    //   key: fs.readFileSync('../certs/frontend.key'),
-    //   cert: fs.readFileSync('../certs/frontend.crt')
-    // },
+    https: {
+      ca: fs.readFileSync('../certs/root.crt'),
+      key: fs.readFileSync('../certs/frontend.key'),
+      cert: fs.readFileSync('../certs/frontend.crt')
+    },
     proxy: {
       '/api': {
-        target: 'http://localhost:8080',
+        target: 'https://api.tool.mybns.cn',
         changeOrigin: true,
+        secure: false,
         ws: true,
         rewrite: (path) => path.replace(/\/api/, '/api')
       }
