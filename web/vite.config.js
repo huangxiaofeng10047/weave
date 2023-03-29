@@ -11,7 +11,6 @@ import fs from 'fs'
 const envPrefix = 'WEAVE_';
 
 // https://vitejs.dev/config/
-<<<<<<< HEAD
 export default ({ mode }) => {
   process.env = { ...process.env, ...loadEnv(mode, process.cwd(), envPrefix) };
 
@@ -21,13 +20,7 @@ export default ({ mode }) => {
         '@': resolve(__dirname, 'src'),
         'views': resolve(__dirname, 'src/views'),
         'components': resolve(__dirname, 'src/components'),
-=======
-export default defineConfig({
-  resolve: {
-    alias: {
-      '@': resolve(__dirname, 'src'),
-      'views': resolve(__dirname, 'src/views'),
-      'components': resolve(__dirname, 'src/components'),
+
     }
   },
   css: {
@@ -54,25 +47,6 @@ export default defineConfig({
       ],
     })
   ],
-  server: {
-    // if your frontend not in the localhost, please uncomment the https config meanwhile
-    host: "0.0.0.0",
-    port: 8081,
-    https: {
-      ca: fs.readFileSync('../certs/root.crt'),
-      key: fs.readFileSync('../certs/frontend.key'),
-      cert: fs.readFileSync('../certs/frontend.crt')
-    },
-    proxy: {
-      '/api': {
-        target: 'https://api.tool.mybns.cn',
-        changeOrigin: true,
-        secure: false,
-        ws: true,
-        rewrite: (path) => path.replace(/\/api/, '/api')
->>>>>>> 89eb60c (add files)
-      }
-    },
     css: {
       preprocessorOptions: {
         scss: {
@@ -102,11 +76,11 @@ export default defineConfig({
       // if your frontend not in the localhost, please uncomment the https config meanwhile
       host: process.env.WEAVE_HOST,
       port: process.env.WEAVE_PORT,
-      // https: {
-      //   ca: fs.readFileSync('../certs/root.crt'),
-      //   key: fs.readFileSync('../certs/frontend.key'),
-      //   cert: fs.readFileSync('../certs/frontend.crt')
-      // },
+      https: {
+        ca: fs.readFileSync('../certs/root.crt'),
+        key: fs.readFileSync('../certs/frontend.key'),
+        cert: fs.readFileSync('../certs/frontend.crt')
+      },
       proxy: {
         '/api': {
           target: process.env.WEAVE_SERVER,
