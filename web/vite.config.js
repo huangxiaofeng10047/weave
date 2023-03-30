@@ -1,4 +1,4 @@
-import { defineConfig } from 'vite'
+import { defineConfig, loadEnv } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import { resolve } from 'path'
 import AutoImport from 'unplugin-auto-import/vite'
@@ -23,30 +23,6 @@ export default ({ mode }) => {
 
     }
   },
-  css: {
-    preprocessorOptions: {
-      scss: {
-        additionalData: `@use "@/styles/element.scss" as *;`,
-      },
-    },
-  },
-  plugins: [
-    vue(),
-    prismjs({
-      languages: ["json", "js", "go", "bash", "yaml", "markup"],
-      plugins: ["line-numbers"],
-      theme: "solarizedlight",
-      css: true,
-    }),
-    AutoImport({
-      resolvers: [ElementPlusResolver({ importStyle: "sass" })],
-    }),
-    Components({
-      resolvers: [
-        ElementPlusResolver({ importStyle: "sass" }),
-      ],
-    })
-  ],
     css: {
       preprocessorOptions: {
         scss: {
