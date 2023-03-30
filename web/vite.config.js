@@ -52,11 +52,11 @@ export default ({ mode }) => {
       // if your frontend not in the localhost, please uncomment the https config meanwhile
       host: process.env.WEAVE_HOST,
       port: process.env.WEAVE_PORT,
-      https: {
-        ca: fs.readFileSync('../certs/root.crt'),
-        key: fs.readFileSync('../certs/frontend.key'),
-        cert: fs.readFileSync('../certs/frontend.crt')
-      },
+      // https: {
+      //   ca: fs.readFileSync('../certs/root.crt'),
+      //   key: fs.readFileSync('../certs/frontend.key'),
+      //   cert: fs.readFileSync('../certs/frontend.crt')
+      // },
       proxy: {
         '/api': {
           target: process.env.WEAVE_SERVER,

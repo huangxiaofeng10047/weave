@@ -2,6 +2,7 @@
 FROM node:lts-alpine AS builder
 WORKDIR /weave
 COPY . .
+RUN npm config set registry https://registry.npm.taobao.org
 RUN npm install && \
     npm run build
 
