@@ -53,7 +53,9 @@
                     <el-table-column prop="metadata.namespace" label="Namespace" />
                     <el-table-column label="Hosts" min-width="120px">
                         <template #default="scope">
-                            {{ getHosts(scope.row.spec.rules) }}
+                            <el-tag type="success">
+                                {{ getHosts(scope.row.spec.rules) }}
+                            </el-tag>
                         </template>
                     </el-table-column>
                     <el-table-column prop="metadata.creationTimestamp" label="StartAt" sortable min-width="120px" />

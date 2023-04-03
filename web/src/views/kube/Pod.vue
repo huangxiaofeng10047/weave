@@ -38,7 +38,7 @@
                     <el-table-column prop="metadata.namespace" label="Namespace" />
                     <el-table-column prop="status" label="Status">
                         <template #default="scope">
-                            <el-tag :type="getStatusType(scope.row.status.phase)"> {{ scope.row.status.phase}} </el-tag>
+                            <el-tag type="getStatusType(scope.row.status.phase)"> {{ scope.row.status.phase}} </el-tag>
                         </template>
                     </el-table-column>
                     <el-table-column prop="spec.containers[0].image" label="Image" min-width="120px" />

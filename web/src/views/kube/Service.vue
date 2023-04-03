@@ -28,7 +28,7 @@
             </div>
 
             <el-card class="h-max flex-row">
-                <template #header>
+                 <template #header>
                     <div class="flex w-full space-x-[2rem]">
                         <el-select class="w-1/3" v-model="currentNamespace" filterable
                             placeholder="please select namespace">
@@ -47,16 +47,18 @@
                             Create
                         </el-button>
                     </div>
-                </template>
+                </template> 
                 <el-table :data="filter" height="360" class="w-full max-h-full">
                     <el-table-column prop="metadata.name" label="Name" sortable />
                     <el-table-column prop="metadata.namespace" label="Namespace" />
                     <el-table-column prop="spec.clusterIP" label="ClusterIP" />
                     <el-table-column prop="spec.ports" label="Ports" min-width="120px">
                         <template #default="scope">
-                            {{ getPorts(scope.row.spec.ports) }}
+                            <el-tag type="success">
+                                {{ getPorts(scope.row.spec.ports) }}
+                            </el-tag> 
                         </template>
-                    </el-table-column>
+                    </el-table-column> 
                     <el-table-column prop="metadata.creationTimestamp" label="StartAt" sortable min-width="120px" />
                     <el-table-column label="Operation" min-width="120px">
                         <template #default="scope">
