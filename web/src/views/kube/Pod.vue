@@ -77,7 +77,7 @@ import {
 import { ref, onMounted, watchEffect, computed } from 'vue';
 import { ElMessage } from "element-plus";
 import request from '@/axios';
-import { obj2yaml } from '@/utils/yaml.js';
+import { obj2yaml } from '@/utils/yaml.ts';
 import CodeEditor from '@/components/CodeEditor.vue';
 
 const showUpdate = ref(false);

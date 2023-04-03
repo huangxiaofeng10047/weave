@@ -66,7 +66,7 @@ import { getUser, delUser, isAnonymous } from '@/utils';
 import request from '@/axios';
 import { ElMessage, ElNotification } from "element-plus";
 import { useRouter } from 'vue-router';
-import { githubInfo } from '@/config.js';
+import { githubInfo } from '@/config.ts';
 
 const user = getUser();
 const router = useRouter();

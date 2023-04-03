@@ -93,7 +93,7 @@ import {
 import { ref, onMounted, watchEffect, computed, toRaw } from 'vue';
 import { ElMessage } from "element-plus";
 import request from '@/axios';
-import { obj2yaml, yaml2obj } from '@/utils/yaml.js';
+import { obj2yaml, yaml2obj } from '@/utils/yaml.ts';
 import CodeEditor from '@/components/CodeEditor.vue';
 
 const showCreate = ref(false);
