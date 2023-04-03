@@ -2,9 +2,12 @@
 FROM node:lts-alpine AS builder
 WORKDIR /weave
 COPY . .
+<<<<<<< HEAD
 RUN rm -f node_modules/
 RUN rm -f dist/
 RUN npm config set registry https://registry.npm.taobao.org
+=======
+>>>>>>> main/master
 RUN npm install && \
     npm run build
 

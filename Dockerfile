@@ -3,6 +3,7 @@ FROM golang:1.19  as builder
 # 启用go module
 ENV GO111MODULE=on \
     GOPROXY=https://goproxy.cn,direct
+# FROM golang:alpine as builder
 WORKDIR /weave
 COPY ["main.go", "go.mod", "go.sum", "./"]
 COPY docs/ docs/

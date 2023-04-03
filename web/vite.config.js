@@ -20,9 +20,14 @@ export default ({ mode }) => {
         '@': resolve(__dirname, 'src'),
         'views': resolve(__dirname, 'src/views'),
         'components': resolve(__dirname, 'src/components'),
+<<<<<<< HEAD
 
     }
   },
+=======
+      }
+    },
+>>>>>>> main/master
     css: {
       preprocessorOptions: {
         scss: {
