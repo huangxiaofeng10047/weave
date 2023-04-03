@@ -24,7 +24,7 @@ build: ## build server
 	go build -ldflags "$(LDFLAGS)" -mod vendor -o bin/weave main.go
 
 run: ## run server
-	go run -mod vendor main.go
+	go run -mod=mod  main.go
 
 test: ## run unit test
 	go test -ldflags -s -v -coverprofile=cover.out $(PKGS)

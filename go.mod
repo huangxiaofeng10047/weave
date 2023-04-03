@@ -6,26 +6,6 @@ require (
 	github.com/bombsimon/logrusr/v2 v2.0.1
 	github.com/docker/docker v20.10.21+incompatible
 	github.com/docker/go-connections v0.4.0
-<<<<<<< HEAD
-	github.com/gin-contrib/cors v1.3.1
-	github.com/gin-gonic/gin v1.7.7
-	github.com/go-logr/logr v1.2.2
-	github.com/go-redis/redis/v8 v8.11.4
-	github.com/golang-jwt/jwt/v4 v4.4.3
-	github.com/gorilla/websocket v1.4.2
-	github.com/hashicorp/golang-lru/v2 v2.0.2
-	github.com/pkg/errors v0.9.1
-	github.com/prometheus/client_golang v1.12.1
-	github.com/sirupsen/logrus v1.8.1
-	github.com/stretchr/testify v1.7.1
-	github.com/swaggo/files v0.0.0-20210815190702-a29dd2bc99b2
-	github.com/swaggo/gin-swagger v1.4.3
-	github.com/swaggo/swag v1.8.1
-	github.com/unrolled/secure v1.13.0
-	golang.org/x/crypto v0.0.0-20220411220226-7b82a4e95df4
-	golang.org/x/oauth2 v0.0.0-20211104180415-d3ed0bb246c8
-	golang.org/x/time v0.0.0-20220210224613-90d013bbcef8
-=======
 	github.com/gin-contrib/cors v1.4.0
 	github.com/gin-gonic/gin v1.8.1
 	github.com/go-logr/logr v1.2.3
@@ -40,10 +20,10 @@ require (
 	github.com/swaggo/files v1.0.0
 	github.com/swaggo/gin-swagger v1.5.3
 	github.com/swaggo/swag v1.8.10
+	github.com/unrolled/secure v1.13.0
 	golang.org/x/crypto v0.4.0
 	golang.org/x/oauth2 v0.3.0
 	golang.org/x/time v0.3.0
->>>>>>> main/master
 	gopkg.in/yaml.v2 v2.4.0
 	gorm.io/driver/postgres v1.4.5
 	gorm.io/gorm v1.24.2
@@ -62,15 +42,9 @@ require (
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/dgryski/go-rendezvous v0.0.0-20200823014737-9f7001d12a5f // indirect
 	github.com/docker/distribution v2.8.1+incompatible // indirect
-<<<<<<< HEAD
-	github.com/docker/go-units v0.4.0 // indirect
-	github.com/emicklei/go-restful v2.9.5+incompatible // indirect
-	github.com/evanphx/json-patch v4.12.0+incompatible // indirect
-=======
 	github.com/docker/go-units v0.5.0 // indirect
 	github.com/emicklei/go-restful/v3 v3.9.0 // indirect
 	github.com/evanphx/json-patch/v5 v5.6.0 // indirect
->>>>>>> main/master
 	github.com/gin-contrib/sse v0.1.0 // indirect
 	github.com/go-openapi/jsonpointer v0.19.5 // indirect
 	github.com/go-openapi/jsonreference v0.20.0 // indirect
