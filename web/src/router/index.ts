@@ -74,6 +74,11 @@ const routes = [
         component: () => import("views/kube/Namespace.vue")
       },
       {
+        path: '/namespace/:id',
+        name: 'NamespaceDetail',
+        component: () => import("views/kube/NamespaceDetail.vue")
+      },
+      {
         path: '/workloads',
         name: 'Workload',
         component: () => import("views/kube/Workload.vue")

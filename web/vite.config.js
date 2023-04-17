@@ -3,16 +3,8 @@ import vue from '@vitejs/plugin-vue'
 import { resolve } from 'path'
 import AutoImport from 'unplugin-auto-import/vite'
 import Components from 'unplugin-vue-components/vite'
-// import { ElementPlusResolver } from 'unplugin-vue-components/resolvers'
-import {
-  ElementPlusResolver,
-  AntDesignVueResolver,
-  VantResolver,
-  HeadlessUiResolver,
-  ElementUiResolver
-} from 'unplugin-vue-components/resolvers'
+import { ElementPlusResolver } from 'unplugin-vue-components/resolvers'
 import prismjs from "vite-plugin-prismjs";
-
 import fs from 'fs'
 
 // env must start with this prefix. in .env config
@@ -28,8 +20,9 @@ export default ({ mode }) => {
         '@': resolve(__dirname, 'src'),
         'views': resolve(__dirname, 'src/views'),
         'components': resolve(__dirname, 'src/components'),
-      }
-    },
+
+    }
+  },
     css: {
       preprocessorOptions: {
         scss: {
@@ -46,20 +39,12 @@ export default ({ mode }) => {
         css: true,
       }),
       AutoImport({
-        imports: ['vue', 'vue-router', 'vue-i18n', '@vueuse/head', '@vueuse/core'],
         resolvers: [ElementPlusResolver({ importStyle: "sass" })],
       }),
       Components({
         resolvers: [
           ElementPlusResolver({ importStyle: "sass" }),
         ],
-         // 指定组件位置，默认是src/components
-      dirs: ['src/components'],
-      // ui库解析器
-      // resolvers: [ElementPlusResolver()],
-      extensions: ['vue'],
-      // 配置文件生成位置
-      dts: 'src/components.d.ts'
       })
     ],
     envPrefix: envPrefix,
