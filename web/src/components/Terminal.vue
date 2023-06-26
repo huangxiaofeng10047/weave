@@ -46,6 +46,7 @@ const term = new Terminal({
   maximizeWin: true,
   screenReaderMode: true,
   fontSize: 14,
+  allowProposedApi: true,
 });
 
 const fitAddon = new FitAddon();
