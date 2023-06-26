@@ -15,6 +15,7 @@ export default ({ mode }) => {
   process.env = { ...process.env, ...loadEnv(mode, process.cwd(), envPrefix) };
 
   return defineConfig({
+    base: process.env.WEAVE_BASE,
     resolve: {
       alias: {
         '@': resolve(__dirname, 'src'),
@@ -62,7 +63,6 @@ export default ({ mode }) => {
           target: process.env.WEAVE_SERVER,
           changeOrigin: true,
           ws: true,
-          rewrite: (path) => path.replace(/\/api/, '/api')
         }
       },
     }

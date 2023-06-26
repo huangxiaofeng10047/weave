@@ -230,6 +230,7 @@ import { ElMessage } from "element-plus";
 import request from '@/axios';
 import { obj2yaml, yaml2obj } from '@/utils/yaml.ts';
 import CodeEditor from '@/components/CodeEditor.vue';
+import { useKubeStore } from '@/store/kube';
 
 const appTypes = [
     { name: "Deployment", resource: "deployments" },
@@ -263,7 +264,8 @@ const formRef1 = ref();
 const formRef2 = ref();
 const createFormRef = reactive([formRef0, formRef1, formRef2])
 
-const currentNamespace = ref();
+const kubeStore = useKubeStore();
+const currentNamespace = ref(kubeStore.getNamespace());
 const namespaces = ref([]);
 
 const apps = ref([]);
@@ -287,6 +289,9 @@ onMounted(
                 let y = b.metadata.name;
                 return x.localeCompare(y);
             })
+            if (!currentNamespace.value && namespaces.value.length > 0 ) {
+                currentNamespace.value = namespaces.value[0].metadata.name
+            }
         })
     }
 );
@@ -301,6 +306,7 @@ watchEffect(() => {
     if (!currentNamespace.value) {
         return []
     }
+    kubeStore.setNamespace(currentNamespace.value)
     getApps(currentNamespace.value, appTypes[appTypeIndex.value].resource)
 });
 
