@@ -76,7 +76,11 @@ docker-run-server: ## run server in docker
 	docker run -e KUBECONFIG=/k8s/config222 --network host -v /home/xfhuang/.kube/:/k8s/ -v $(shell pwd)/config:/config -v $(shell pwd)/certs:/certs -v /var/run/docker.sock:/var/run/docker.sock $(SERVER_IMG)
 FRONENT_IMG=weave-fronent
 docker-build-ui: ## build frontend image
-	cd web && docker build -t $(FRONENT_IMG) .
+	cd web && docker build --build-arg BUILD_OPTS=build -t $(FRONENT_IMG) .
+
+MOCK_FRONENT_IMG=qingwave/weave-frontend:mock
+docker-build-ui-mock: ## build mock frontend image
+	cd web && docker build --build-arg BUILD_OPTS=build-with-mock -t $(MOCK_FRONENT_IMG) .
 
 docker-run-ui: ## run frontendx in docker
 	docker run --network host -v $(shell pwd)/web/nginx.conf:/etc/nginx/conf.d/nginx.conf $(FRONENT_IMG)
