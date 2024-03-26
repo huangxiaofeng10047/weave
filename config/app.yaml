@@ -26,7 +26,7 @@ kubernetes:
   - "Namespace.v1."
 
 db:
-  port: 5432 
+  port: 5432
   host: "localhost"
   name: "weave"
   user: "postgres"
@@ -35,7 +35,7 @@ db:
 
 redis:
   enable: true
-  port: 6379 
+  port: 16379
   host: "localhost"
   password: "123456"
 

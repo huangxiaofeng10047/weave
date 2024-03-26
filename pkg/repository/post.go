@@ -3,9 +3,9 @@ package repository
 import (
 	"github.com/qingwave/weave/pkg/database"
 	"github.com/qingwave/weave/pkg/model"
-
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
+	"strings"
 )
 
 type postRepository struct {
@@ -56,8 +56,23 @@ func (p *postRepository) List() ([]model.Post, error) {
 func (p *postRepository) Create(user *model.User, post *model.Post) (*model.Post, error) {
 	post.CreatorID = user.ID
 	post.Creator = *user
-	err := p.db.Create(post).Error
+	//err := p.db.Model(&model.Post{}).Create(&post).Error
+	err := p.db.Create(&model.Post{
+		Name:       post.Name,
+		Content:    post.Content,
+		Summary:    cleanString(post.Summary),
+		CreatorID:  post.CreatorID,
+		Tags:       post.Tags,
+		Categories: post.Categories,
+	}).Error
+	//err := p.db.Exec(" INSERT INTO \"posts\" (\"name\",\"content\",\"summary\",\"creator_id\",\"views\",\"created_at\",\"updated_at\",\"deleted_at\") VALUES ('再找找','\n啊','啊',1,0,'2024-03-25 17:20:41.078','2024-03-25 17:20:41.078',NULL)").Error
+	//err := p.db.Create(&model.Post{Name: "黄晓峰", Summary: "你好", Content: "你好", CreatorID: 1, Tags: []model.Tag{{Name: "黄晓峰"}}, Categories: []model.Category{{Name: "黄晓峰"}}}).Error
 	return post, err
+}
+
+// 清理字符串，移除所有空字符
+func cleanString(str string) string {
+	return strings.Replace(str, "\u0000", "", -1)
 }
 
 func (p *postRepository) GetTags(post *model.Post) ([]model.Tag, error) {
