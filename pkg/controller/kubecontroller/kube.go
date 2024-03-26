@@ -396,7 +396,7 @@ func (kc *KubeController) PodLogs(c *gin.Context) {
 
 var upgrader = websocket.Upgrader{
 	ReadBufferSize:  1024,
-	WriteBufferSize: 1024,
+	WriteBufferSize: 1024 * 1024 * 10,
 	// Allow connections from any Origin
 	CheckOrigin: func(r *http.Request) bool { return true },
 }

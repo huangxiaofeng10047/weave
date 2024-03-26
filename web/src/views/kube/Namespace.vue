@@ -39,7 +39,15 @@
           </div>
         </template>
         <el-table :data="getItems(filter)" class="w-full max-h-full">
-          <el-table-column prop="metadata.name" label="Name" />
+          //实现点击这一列跳转到其他页面
+          <el-table-column prop="metadata.name" label="Name1">
+            <template #default="scope">
+              <router-link :to="getWorkloadUrl(scope.row.metadata.name)">
+                <el-link type="primary">{{ scope.row.metadata.name }}</el-link>
+              </router-link>
+            </template>
+          </el-table-column>
+          <!-- <el-table-column prop="metadata.name" label="Name" /> -->
           <el-table-column prop="metadata.labels['weave.io/group']" label="Group" />
           <el-table-column prop="metadata.annotations['weave.io/describe']" label="Describe" />
           <el-table-column prop="metadata.creationTimestamp" label="CreateAt" min-width="120px" />
@@ -173,5 +181,7 @@ const deleteNamespace = (row) => {
     showDelete.value = -1;
   })
 };
-
+const getWorkloadUrl = (id) => {
+   return `/namespace/${id}`
+}
 </script>

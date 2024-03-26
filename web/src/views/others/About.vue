@@ -5,7 +5,7 @@
 </template>
 
 <script setup>
-import { githubInfo } from '@/config.js';
+import { githubInfo } from '@/config.ts';
 import MarkDown from 'components/MarkDown.vue';
 
 const data = `

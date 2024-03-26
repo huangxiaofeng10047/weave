@@ -1,6 +1,44 @@
 <template>
   <div class="w-full flex justify-center">
     <div class="flex flex-col w-full h-full px-[4rem] py-[2rem] space-y-[1rem]">
+      <el-dialog v-model="showCreate" top="5vh" title="Create User" width="50%">
+        <el-form ref="createFormRef" :model="newUser" label-position="top" label-width="auto" :rules="rules">
+          <el-form-item label="Name" prop="name" required>
+            <el-input v-model="newUser.name"  />
+            <span class="text-gray-400">The user name</span>
+          </el-form-item>
+          <el-form-item label="Email" prop="email" required>
+            <el-input v-model="newUser.email" />
+            <span class="text-gray-400">The user email address</span>
+          </el-form-item>
+          <el-form-item label="Password" prop="password" required>
+            <el-input v-model="newUser.password" type="password" placeholder="123456" show-password>
+              <template #prefix>
+                <Lock />
+              </template>
+              </el-input>
+            <span class="text-gray-400">The user password </span> 
+          </el-form-item>
+          <!-- <el-form-item label="修改密码:" prop="newPassword">
+            <el-input
+                v-model="newUser.newPassword"
+                type="password"
+            />
+        </el-form-item>
+        <el-form-item label="确认密码:" prop="confirmPassword">
+            <el-input
+                v-model="addForm.confirmPassword"
+                type="password"
+            />
+        </el-form-item> -->
+        </el-form>
+        <template #footer>
+          <span class="dialog-footer">
+            <el-button type="primary" @click="createUser">Confirm</el-button>
+            <el-button @click="showCreate = false">Cancel</el-button>
+          </span>
+        </template>
+      </el-dialog>
       <el-dialog v-model="showUpdate" top="5vh" title="Update User" width="50%">
         <el-form ref="updateFormRef" :model="updatedUser" label-position="top" label-width="auto">
           <el-form-item label="Name" prop="name">
@@ -36,6 +74,7 @@
                 </el-icon>
               </template>
             </el-input>
+            <el-button type="primary" plain :icon="User" @Click="showCreate = true">Create</el-button>
           </div>
         </template>
         <el-table :data="filter" class="w-full max-h-full">
@@ -74,9 +113,9 @@
 </style>
 
 <script setup>
-import { Edit, Delete, Search, User } from '@icon-park/vue-next';
-import { ref, unref, onMounted, computed } from 'vue';
-import { ElMessage } from "element-plus";
+import { Edit, Delete, Search, User,Lock } from '@icon-park/vue-next';
+// import { ref, unref, onMounted, computed } from 'vue';
+// import { ElMessage } from "element-plus";
 import request from '@/axios'
 
 const users = ref([]);
@@ -85,9 +124,33 @@ const showUpdate = ref(false);
 const showDelete = ref(-1);
 const newUser = ref({
   name: '',
-  image: '',
-  cmd: []
+  email: '',
+  password: '',
 });
+const  rules=ref({
+        password: [
+          //密码
+          {
+            required: true,
+            message: "密码不可为空",
+            trigger: "blur"
+          }
+        ],
+        name: [
+          //活动名称
+          {
+            required: true,
+            message: "请输入活动名称",
+            trigger: "blur"
+          },
+          {
+            min: 3,
+            max: 5,
+            message: "长度在 3 到 5 个字符",
+            trigger: "blur"
+          }
+        ]
+      }) 
 
 const updatedUser = ref({});
 const createFormRef = ref();
@@ -114,7 +177,6 @@ onMounted(
 const getUserUrl = (id) => {
   return `/users/${id}`
 };
-
 const createUser = () => {
   const form = unref(createFormRef)
   if (!form) {
@@ -126,6 +188,7 @@ const createUser = () => {
       request.post("/api/v1/users", {
         name: newUser.value.name,
         email: newUser.value.email,
+        password: newUser.value.password,
       }).then((response) => {
         ElMessage.success("Create success");
         users.value.push(response.data.data);

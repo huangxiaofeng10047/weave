@@ -24,7 +24,7 @@ build: ## build server
 	go build -ldflags "$(LDFLAGS)" -mod vendor -o bin/weave main.go
 
 run: ## run server
-	go run -mod vendor main.go
+	go run -mod=mod  main.go
 
 test: ## run unit test
 	go test -ldflags -s -v -coverprofile=cover.out $(PKGS)
@@ -49,7 +49,7 @@ init: install-swagger install-golangci-lint postgres redis ## install all depend
 	echo "init all"
 
 install-swagger: ## install swagger from golang
-	go install github.com/swaggo/swag/cmd/swag@v1.8.12
+	go install github.com/swaggo/swag/cmd/swag@latest
 
 install-golangci-lint:
 	go install github.com/golangci/golangci-lint/cmd/golangci-lint@v1.50.1
@@ -68,14 +68,13 @@ redis: ## init redis
 ui: ## run ui locally
 	cd web && npm i && npm run dev
 
-SERVER_IMG=qingwave/weave-server
+SERVER_IMG=weave-server
 docker-build-server: ## build server image
 	docker build -t $(SERVER_IMG) .
 
 docker-run-server: ## run server in docker
-	docker run --network host -v $(shell pwd)/config:/config -v /var/run/docker.sock:/var/run/docker.sock $(SERVER_IMG)
-
-FRONENT_IMG=qingwave/weave-frontend
+	docker run -e KUBECONFIG=/k8s/config222 --network host -v /home/xfhuang/.kube/:/k8s/ -v $(shell pwd)/config:/config -v $(shell pwd)/certs:/certs -v /var/run/docker.sock:/var/run/docker.sock $(SERVER_IMG)
+FRONENT_IMG=weave-fronent
 docker-build-ui: ## build frontend image
 	cd web && docker build --build-arg BUILD_OPTS=build -t $(FRONENT_IMG) .
 
