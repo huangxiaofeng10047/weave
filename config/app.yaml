@@ -21,13 +21,13 @@ docker:
 kubernetes:
   enable: true # set `KUBECONFIG` env or flag --kubeconfig at first
   watchResources:
-  - "Deployment.v1.apps"
-  - "Pod.v1."
-  - "Namespace.v1."
+    - "Deployment.v1.apps"
+    - "Pod.v1."
+    - "Namespace.v1."
 
 db:
   port: 5432
-  host: "localhost"
+  host: "192.167.11.5"
   name: "weave"
   user: "postgres"
   password: "123456"
@@ -35,8 +35,8 @@ db:
 
 redis:
   enable: true
-  port: 16379
-  host: "localhost"
+  port: 6379
+  host: "192.167.11.6"
   password: "123456"
 
 oauth:

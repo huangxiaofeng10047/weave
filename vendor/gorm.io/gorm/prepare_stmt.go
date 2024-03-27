@@ -3,7 +3,6 @@ package gorm
 import (
 	"context"
 	"database/sql"
-	"reflect"
 	"sync"
 )
 
@@ -21,22 +20,13 @@ type PreparedStmtDB struct {
 	ConnPool
 }
 
-func NewPreparedStmtDB(connPool ConnPool) *PreparedStmtDB {
-	return &PreparedStmtDB{
-		ConnPool:    connPool,
-		Stmts:       make(map[string]*Stmt),
-		Mux:         &sync.RWMutex{},
-		PreparedSQL: make([]string, 0, 100),
-	}
-}
-
 func (db *PreparedStmtDB) GetDBConn() (*sql.DB, error) {
-	if sqldb, ok := db.ConnPool.(*sql.DB); ok {
-		return sqldb, nil
-	}
-
 	if dbConnector, ok := db.ConnPool.(GetDBConnector); ok && dbConnector != nil {
 		return dbConnector.GetDBConn()
+	}
+
+	if sqldb, ok := db.ConnPool.(*sql.DB); ok {
+		return sqldb, nil
 	}
 
 	return nil, ErrInvalidDB
@@ -54,15 +44,15 @@ func (db *PreparedStmtDB) Close() {
 	}
 }
 
-func (sdb *PreparedStmtDB) Reset() {
-	sdb.Mux.Lock()
-	defer sdb.Mux.Unlock()
+func (db *PreparedStmtDB) Reset() {
+	db.Mux.Lock()
+	defer db.Mux.Unlock()
 
-	for _, stmt := range sdb.Stmts {
+	for _, stmt := range db.Stmts {
 		go stmt.Close()
 	}
-	sdb.PreparedSQL = make([]string, 0, 100)
-	sdb.Stmts = make(map[string]*Stmt)
+	db.PreparedSQL = make([]string, 0, 100)
+	db.Stmts = make(map[string]*Stmt)
 }
 
 func (db *PreparedStmtDB) prepare(ctx context.Context, conn ConnPool, isTransaction bool, query string) (Stmt, error) {
@@ -127,19 +117,6 @@ func (db *PreparedStmtDB) BeginTx(ctx context.Context, opt *sql.TxOptions) (Conn
 		tx, err := beginner.BeginTx(ctx, opt)
 		return &PreparedStmtTX{PreparedStmtDB: db, Tx: tx}, err
 	}
-
-	beginner, ok := db.ConnPool.(ConnPoolBeginner)
-	if !ok {
-		return nil, ErrInvalidTransaction
-	}
-
-	connPool, err := beginner.BeginTx(ctx, opt)
-	if err != nil {
-		return nil, err
-	}
-	if tx, ok := connPool.(Tx); ok {
-		return &PreparedStmtTX{PreparedStmtDB: db, Tx: tx}, nil
-	}
 	return nil, ErrInvalidTransaction
 }
 
@@ -185,19 +162,15 @@ type PreparedStmtTX struct {
 	PreparedStmtDB *PreparedStmtDB
 }
 
-func (db *PreparedStmtTX) GetDBConn() (*sql.DB, error) {
-	return db.PreparedStmtDB.GetDBConn()
-}
-
 func (tx *PreparedStmtTX) Commit() error {
-	if tx.Tx != nil && !reflect.ValueOf(tx.Tx).IsNil() {
+	if tx.Tx != nil {
 		return tx.Tx.Commit()
 	}
 	return ErrInvalidTransaction
 }
 
 func (tx *PreparedStmtTX) Rollback() error {
-	if tx.Tx != nil && !reflect.ValueOf(tx.Tx).IsNil() {
+	if tx.Tx != nil {
 		return tx.Tx.Rollback()
 	}
 	return ErrInvalidTransaction

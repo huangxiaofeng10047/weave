@@ -128,7 +128,7 @@ func getSummary(content string) string {
 	if len(content) < l {
 		l = len(content)
 	}
-
-	sum := string([]rune(content)[:l])
+	//打印
+	sum := string([]rune(content)[:1])
 	return summaryRe.ReplaceAllString(sum, "")
 }

@@ -24,16 +24,10 @@ type Dialector struct {
 type Config struct {
 	DriverName           string
 	DSN                  string
-	WithoutQuotingCheck  bool
 	PreferSimpleProtocol bool
 	WithoutReturning     bool
 	Conn                 gorm.ConnPool
 }
-
-var (
-	timeZoneMatcher         = regexp.MustCompile("(time_zone|TimeZone)=(.*?)($|&| )")
-	defaultIdentifierLength = 63 //maximum identifier length for postgres
-)
 
 func Open(dsn string) gorm.Dialector {
 	return &Dialector{&Config{DSN: dsn}}
@@ -47,42 +41,17 @@ func (dialector Dialector) Name() string {
 	return "postgres"
 }
 
-func (dialector Dialector) Apply(config *gorm.Config) error {
-	if config.NamingStrategy == nil {
-		config.NamingStrategy = schema.NamingStrategy{
-			IdentifierMaxLength: defaultIdentifierLength,
-		}
-		return nil
-	}
-
-	switch v := config.NamingStrategy.(type) {
-	case *schema.NamingStrategy:
-		if v.IdentifierMaxLength <= 0 {
-			v.IdentifierMaxLength = defaultIdentifierLength
-		}
-	case schema.NamingStrategy:
-		if v.IdentifierMaxLength <= 0 {
-			v.IdentifierMaxLength = defaultIdentifierLength
-			config.NamingStrategy = v
-		}
-	}
-
-	return nil
-}
+var timeZoneMatcher = regexp.MustCompile("(time_zone|TimeZone)=(.*?)($|&| )")
 
 func (dialector Dialector) Initialize(db *gorm.DB) (err error) {
-	callbackConfig := &callbacks.Config{
-		CreateClauses: []string{"INSERT", "VALUES", "ON CONFLICT"},
-		UpdateClauses: []string{"UPDATE", "SET", "FROM", "WHERE"},
-		DeleteClauses: []string{"DELETE", "FROM", "WHERE"},
-	}
 	// register callbacks
 	if !dialector.WithoutReturning {
-		callbackConfig.CreateClauses = append(callbackConfig.CreateClauses, "RETURNING")
-		callbackConfig.UpdateClauses = append(callbackConfig.UpdateClauses, "RETURNING")
-		callbackConfig.DeleteClauses = append(callbackConfig.DeleteClauses, "RETURNING")
+		callbacks.RegisterDefaultCallbacks(db, &callbacks.Config{
+			CreateClauses: []string{"INSERT", "VALUES", "ON CONFLICT", "RETURNING"},
+			UpdateClauses: []string{"UPDATE", "SET", "WHERE", "RETURNING"},
+			DeleteClauses: []string{"DELETE", "FROM", "WHERE", "RETURNING"},
+		})
 	}
-	callbacks.RegisterDefaultCallbacks(db, callbackConfig)
 
 	if dialector.Conn != nil {
 		db.ConnPool = dialector.Conn
@@ -121,23 +90,10 @@ func (dialector Dialector) DefaultValueOf(field *schema.Field) clause.Expression
 
 func (dialector Dialector) BindVarTo(writer clause.Writer, stmt *gorm.Statement, v interface{}) {
 	writer.WriteByte('$')
-	index := 0
-	varLen := len(stmt.Vars)
-	if varLen > 0 {
-		switch stmt.Vars[0].(type) {
-		case pgx.QueryExecMode:
-			index++
-		}
-	}
-	writer.WriteString(strconv.Itoa(varLen - index))
+	writer.WriteString(strconv.Itoa(len(stmt.Vars)))
 }
 
 func (dialector Dialector) QuoteTo(writer clause.Writer, str string) {
-	if dialector.WithoutQuotingCheck {
-		writer.WriteString(str)
-		return
-	}
-
 	var (
 		underQuoted, selfQuoted bool
 		continuousBacktick      int8

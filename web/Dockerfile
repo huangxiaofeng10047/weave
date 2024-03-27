@@ -7,7 +7,7 @@ WORKDIR /weave
 COPY . .
 RUN rm -f node_modules/
 RUN rm -f dist/
-RUN npm config set registry https://registry.npm.taobao.org
+RUN npm config set registry https://registry.npmjs.org/
 RUN npm install && \
     npm run ${BUILD_OPTS}
 
