@@ -73,7 +73,7 @@ docker-build-server: ## build server image
 	docker build -t $(SERVER_IMG) .
 
 docker-run-server: ## run server in docker
-	docker run -p 8080:8080 -e KUBECONFIG=/k8s/config222 --network mysql-master-slave_mysql2master -v /home/xfhuang/.kube/:/k8s/ -v $(shell pwd)/config:/config -v $(shell pwd)/certs:/certs -v /var/run/docker.sock:/var/run/docker.sock $(SERVER_IMG)
+	docker run -p 8080:8080  --network mysql-master-slave_mysql2master -v $(shell pwd)/config:/config -v $(shell pwd)/certs:/certs -v /var/run/docker.sock:/var/run/docker.sock $(SERVER_IMG)
 FRONENT_IMG=weave-fronent
 docker-build-ui: ## build frontend image
 	cd web && docker build --build-arg BUILD_OPTS=build -t $(FRONENT_IMG) .
