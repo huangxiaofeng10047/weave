@@ -152,40 +152,6 @@
                     <el-table-column prop="metadata.namespace" label="Namespace" />
                     <el-table-column prop="status" label="Status">
                         <template #default="scope">
-                            <el-tag type="getStatusType(scope.row.status)">
-                                {{ scope.row.status.replicas }}
-                            </el-tag> 
-                        </template>
-                    </el-table-column>
-                    <el-table-column prop="spec.template.spec.containers[0].image" label="Image" min-width="120px" />
-                    <el-table-column prop="spec.template.spec.containers[0].image" label="Image" min-width="120px" />
-                    <el-table-column prop="metadata.creationTimestamp" label="StartAt" sortable min-width="120px" />
-                    <el-table-column label="Operation" min-width="120px">
-                        <template #default="scope">
-                            <div class="space-x-[0.75rem]">
-                                <el-button class="" size="small" circle @click="editApp(scope.row)" :icon="Edit" />
-
-                                <el-popover :visible="showDelete == scope.$index" placement="top" :width="180">
-                                    <template #reference>
-                                        <el-button size="small" type="danger" @click="showDelete = scope.$index"
-                                            :icon="Delete" circle class="wl-[1rem]" />
-                                    </template>
-                                    <p>Are you sure to delete this app?</p>
-                                    <div class="ml-[0.5rem]">
-                                        <el-button size="small" text @click="showDelete = -1">cancel</el-button>
-                                        <el-button size="small" type="danger" @click="deleteApp(scope.row)">confirm
-                                        </el-button>
-                                    </div>
-                                </el-popover>
-                            </div>
-                        </template>
-                    </el-table-column>
-                </el-table>
-                <!-- <el-table :data="filter" height="360" class="w-full max-h-full">
-                    <el-table-column prop="metadata.name" label="Name" sortable />
-                    <el-table-column prop="metadata.namespace" label="Namespace" />
-                    <el-table-column prop="status" label="Status">
-                        <template #default="scope">
                             <el-tag :type="getStatusType(scope.row.status)">
                                 {{ getAppStatusType(scope.row.status) }}({{ scope.row.status.readyReplicas || 0 }} / {{
                                         scope.row.status.replicas || 0
@@ -215,7 +181,7 @@
                             </div>
                         </template>
                     </el-table-column>
-                </el-table> -->
+                </el-table>
             </el-card>
         </div>
     </div>
@@ -228,7 +194,7 @@ import {
 import { ref, unref, onMounted, watchEffect, computed, reactive } from 'vue';
 import { ElMessage } from "element-plus";
 import request from '@/axios';
-import { obj2yaml, yaml2obj } from '@/utils/yaml.ts';
+import { obj2yaml, yaml2obj } from '@/utils/yaml.js';
 import CodeEditor from '@/components/CodeEditor.vue';
 import { useKubeStore } from '@/store/kube';
 
@@ -482,11 +448,9 @@ const getAppStatusType = (status) => {
 };
 
 const getStatusType = (status) => {
-    alert(code)
     const code = getAppStatusType(status)
-    alert(code)
     if (code == "creating") {
-        return "info"
+        return ""
     } else if (code == "running") {
         return "success"
     } else if (code == "notAllReady") {
@@ -496,4 +460,3 @@ const getStatusType = (status) => {
     }
 };
 </script>
-  

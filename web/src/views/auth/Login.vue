@@ -82,7 +82,7 @@ import { User, Lock, Github, Wechat } from '@icon-park/vue-next'
 import { ref, reactive } from 'vue'
 import request from '@/axios'
 import { useRouter } from 'vue-router'
-import { authInfo } from '@/config.ts'
+import { authInfo } from '@/config.js'
 
 const router = useRouter();
 

@@ -12,6 +12,6 @@
 
 <script setup>
 import { Github, Waves } from '@icon-park/vue-next';
-import { githubInfo } from '@/config.ts';
+import { githubInfo } from '@/config.js';
 
 </script>
