@@ -27,7 +27,7 @@ kubernetes:
 
 db:
   port: 5432
-  host: "192.168.120.100"
+  host: "10.7.202.35"
   name: "weave"
   user: "postgres"
   password: "123456"
@@ -36,7 +36,7 @@ db:
 redis:
   enable: true
   port: 16379
-  host: "192.168.120.100"
+  host: "10.7.202.35"
   password: "123456"
 
 oauth:

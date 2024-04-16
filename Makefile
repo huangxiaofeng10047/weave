@@ -55,7 +55,7 @@ install-golangci-lint:
 	go install github.com/golangci/golangci-lint/cmd/golangci-lint@v1.50.1
 
 postgres: ## init postgres db
-	@docker start mypostgres || docker run --network mysql-master-slave_mysql2master --name mypostgres -d -p 5432:5432 -e POSTGRES_PASSWORD=123456 postgres
+	@docker start mypostgres || docker run  --name mypostgres -d -p 5432:5432 -e POSTGRES_PASSWORD=123456 postgres
 	until docker exec mypostgres psql -U postgres; do echo "wait postgres start"; sleep 1; done
 	cat scripts/db.sql | docker exec -i mypostgres psql -U postgres
 
@@ -63,7 +63,7 @@ exec-db: ## exec to db container
 	docker exec -it mypostgres psql -d weave -U postgres
 
 redis: ## init redis
-	@docker start myredis || docker run --network mysql-master-slave_mysql2master --name myredis -d -p 16379:6379 redis --appendonly yes --requirepass 123456
+	@docker start myredis || docker run  --name myredis -d -p 16379:6379 redis --appendonly yes --requirepass 123456
 
 ui: ## run ui locally
 	cd web && npm i && npm run dev
@@ -73,15 +73,15 @@ docker-build-server: ## build server image
 	docker build -t $(SERVER_IMG) .
 
 docker-run-server: ## run server in docker
-	docker run -p 8080:8080  --network mysql-master-slave_mysql2master -v $(shell pwd)/config:/config -v $(shell pwd)/certs:/certs -v /var/run/docker.sock:/var/run/docker.sock $(SERVER_IMG)
+	docker run  --network host -v $(shell pwd)/config:/config -v $(shell pwd)/certs:/certs -v /var/run/docker.sock:/var/run/docker.sock $(SERVER_IMG)
 FRONENT_IMG=weave-fronent
 docker-build-ui: ## build frontend image
 	cd web && docker build --build-arg BUILD_OPTS=build -t $(FRONENT_IMG) .
 docker-run-ui : ## run frontend in docker
-	docker run -p 8089:8089 --network mysql-master-slave_mysql2master -v $(shell pwd)/web/nginx.conf:/etc/nginx/conf.d/nginx.conf $(FRONENT_IMG)
+	docker run --network host    -v $(shell pwd)/web/nginx.conf:/etc/nginx/conf.d/default.conf $(FRONENT_IMG)
 MOCK_FRONENT_IMG=qingwave/weave-frontend:mock
 docker-build-ui-mock: ## build mock frontend image
 	cd web && docker build --build-arg BUILD_OPTS=build-with-mock -t $(MOCK_FRONENT_IMG) .
 
 docker-run-ui-mock: ## run mock frontend in docker
-	docker run -p 8089:8089 --network mysql-master-slave_mysql2master -v $(shell pwd)/web/nginx.conf:/etc/nginx/conf.d/nginx.conf $(MOCK_FRONENT_IMG)
+	docker run --network host    -v $(shell pwd)/web/nginx.conf:/etc/nginx/conf.d/nginx.conf $(MOCK_FRONENT_IMG)
