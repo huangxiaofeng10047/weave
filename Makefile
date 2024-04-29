@@ -47,7 +47,9 @@ swagger: ## swagger init
 init: install-swagger install-golangci-lint postgres redis ## install all dependencies and init config
 	git config core.hooksPath .githooks
 	echo "init all"
-
+destroy: ## destroy all
+	docker stop mypostgres myredis || true
+	docker rm mypostgres myredis || true
 install-swagger: ## install swagger from golang
 	go install github.com/swaggo/swag/cmd/swag@latest
 
